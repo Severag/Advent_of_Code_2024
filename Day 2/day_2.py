@@ -3,8 +3,12 @@ import numpy as np
 
 
 def read_file(filename):
+    def parse(line):
+        num_txts = re.findall('\d+', line)
+        return np.array([int(txt) for txt in num_txts])
+    
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        data = [parse(line) for line in f]
     
     return data
 
@@ -19,12 +23,45 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    safe_count = 0
+    
+    for row in data:
+        if check_levels(row):
+            safe_count += 1
+    
+    return safe_count
 
 
 
 def part2(data):
-    return
+    safe_count = 0
+    
+    for row in data:
+        if check_levels(row):
+            safe_count += 1
+        else:
+            # try again by removing each level individually
+            indices = np.array(list(range(row.size)))
+            for idx,val in enumerate(row):
+                if check_levels(row[indices != idx]):
+                    safe_count += 1
+                    break
+    
+    return safe_count
+
+
+
+def check_levels(row):
+    diffs = row[1:] - row[:-1]
+    
+    # Condition 1: all increasing or all decreasing
+    if np.all(diffs > 0) or np.all(diffs < 0):
+        # Condition 2: change is b/n 1 and 3, inclusive
+        # previous line check > 0, so just check <= 3
+        if np.all(np.abs(diffs) <= 3):
+            return True
+    
+    return False
 
 
 
@@ -43,7 +80,7 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
+puzzles = [['test_case.txt',    [2, 4]],
            ['puzzle_input.txt', []]]
 
 for problem in puzzles:
