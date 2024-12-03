@@ -4,7 +4,7 @@ import numpy as np
 
 def read_file(filename):
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        data = [line.strip() for line in f]
     
     return data
 
@@ -19,12 +19,39 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    combined = ''.join(data)
+    mult_strs = re.findall(r'mul\(\d+,\d+\)', combined)
+    
+    total = 0
+    for string in mult_strs:
+        coeffs = [int(val) for val in re.findall(r'\d+', string)]
+        total += coeffs[0] * coeffs[1]
+    
+    return total
 
 
 
 def part2(data):
-    return
+    combined = ''.join(data)
+    mult_strs = re.findall(r"mul\(\d+,\d+\)|do\(\)|don't\(\)", combined)
+    
+    total = 0
+    is_do = True
+    for string in mult_strs:
+        if "don't" in string:
+            is_do = False
+        elif 'do' in string:
+            is_do = True
+        elif is_do:
+            try:
+                coeffs = [int(val) for val in re.findall(r'\d+', string)]
+            except TypeError as e:
+                print(string)
+                print('stop')
+            coeffs = [int(val) for val in re.findall(r'\d+', string)]
+            total += coeffs[0] * coeffs[1]
+    
+    return total
 
 
 
@@ -43,8 +70,9 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
-           ['puzzle_input.txt', []]]
+puzzles = [['test_case.txt',    [161, None]],
+           ['test_case_2.txt',  [None, 48]],
+                      ['puzzle_input.txt', []]]
 
 for problem in puzzles:
     filename, answers = problem
