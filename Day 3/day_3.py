@@ -72,7 +72,7 @@ def check(myanswer, answer):
 
 puzzles = [['test_case.txt',    [161, None]],
            ['test_case_2.txt',  [None, 48]],
-                      ['puzzle_input.txt', []]]
+           ['puzzle_input.txt', []]]
 
 for problem in puzzles:
     filename, answers = problem
