@@ -46,7 +46,7 @@ def part2(data):
     funcs = [lambda x,y: x + y,  # addition
              lambda x,y: x * y,  # multiplication
              # lambda x,y: x * 10**math.ceil(math.log(y, 10) + 1e-15) + y,  # contatenation
-              lambda x,y: int(str(x) + str(y))  # contatenation
+             lambda x,y: int(str(x) + str(y))  # contatenation
             ]
     
     for i,eqn in enumerate(data):
