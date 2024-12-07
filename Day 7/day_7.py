@@ -1,10 +1,10 @@
-import itertools, re
+import math, re
 import numpy as np
 
 
 def read_file(filename):
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        data = [[int(val) for val in re.findall(r'\d+', line)] for line in f]
     
     return data
 
@@ -19,12 +19,53 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    valid_totals = []
+    
+    for eqn in data:
+        goal = eqn[0]
+        all_subtotals = [eqn[1]]
+        
+        for val in eqn[2:]:
+            all_subtotals = [result for subtotal in all_subtotals for result in 
+                             [val + subtotal, val * subtotal] if result <= goal]
+            
+            # ran out of valid pathways to reach <goal>
+            if len(all_subtotals) < 1:
+                break
+        
+        # we found a way to combine all the numbers to equal <goal>
+        if goal in all_subtotals:
+            valid_totals.append(goal)
+        
+    return sum(valid_totals)
 
 
 
 def part2(data):
-    return
+    valid_totals = []
+    funcs = [lambda x,y: x + y,  # addition
+             lambda x,y: x * y,  # multiplication
+             # lambda x,y: x * 10**math.ceil(math.log(y, 10) + 1e-15) + y,  # contatenation
+              lambda x,y: int(str(x) + str(y))  # contatenation
+            ]
+    
+    for i,eqn in enumerate(data):
+        goal = eqn[0]
+        all_subtotals = [eqn[1]]
+        
+        for val in eqn[2:]:
+            all_subtotals = [op(subtotal, val) for subtotal in all_subtotals for 
+                             op in funcs if subtotal <= goal]
+            
+            # ran out of valid pathways to reach <goal>
+            if len(all_subtotals) < 1:
+                break
+        
+        # we found a way to combine all the numbers to equal <goal>
+        if goal in all_subtotals:
+            valid_totals.append(goal)
+    
+    return sum(valid_totals)
 
 
 
@@ -43,8 +84,9 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
+puzzles = [['test_case.txt',    [3749, 11387]],
            ['puzzle_input.txt', []]]
+                                    
 
 for problem in puzzles:
     filename, answers = problem
