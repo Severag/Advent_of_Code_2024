@@ -4,9 +4,9 @@ import numpy as np
 
 def read_file(filename):
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        data = [[int(val) for val in line.strip()] for line in f]
     
-    return data
+    return np.array(data)
 
 
 
@@ -19,12 +19,91 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    total = 0
+    
+    for r,c in zip(*np.where(data == 0)):
+        total += explore_trailhead(data, (r, c))
+    
+    return total
 
 
 
 def part2(data):
-    return
+    total = 0
+    
+    for r,c in np.transpose(np.where(data == 0)):
+        total += explore_trailhead(data, (r, c), False)
+    
+    return total
+
+
+
+def explore_trailhead(board, start, is_part1=True):
+    open_list = [start]
+    closed_set = set()
+    score = 0
+    
+    deltas = [[ 1, 0],
+              [-1, 0],
+              [ 0, 1],
+              [ 0,-1]]
+    
+    while open_list:
+        loc = open_list.pop()
+        val = board[loc]
+        
+        if is_part1:
+            # check we haven't been here
+            if loc in closed_set:
+                continue
+            closed_set.add(loc)
+        
+        # increase score, if we're at a peak
+        if val == 9:
+            score += 1
+        
+        # explore neighbors
+        for dr, dc in deltas:
+            new_loc = (loc[0] + dr, loc[1] + dc)
+            
+            # check if in bounds
+            if 0 <= new_loc[0] < len(board) and 0 <= new_loc[1] < len(board[0]):
+                # always move to a spot exactly 1 higher than the current
+                if board[new_loc] == val + 1:
+                    open_list.append(new_loc)    
+    
+    return score
+
+
+
+def get_rating(board, start):
+    open_list = [start]
+    rating = 0
+    
+    deltas = [[ 1, 0],
+              [-1, 0],
+              [ 0, 1],
+              [ 0,-1]]
+    
+    while open_list:
+        loc = open_list.pop()
+        val = board[loc]
+        
+        # increase rating, if we're at a peak
+        if val == 9:
+            rating += 1
+        
+        # explore neighbors
+        for dr, dc in deltas:
+            new_loc = (loc[0] + dr, loc[1] + dc)
+            
+            # check if in bounds
+            if 0 <= new_loc[0] < len(board) and 0 <= new_loc[1] < len(board[0]):
+                # always move to a spot exactly 1 higher than the current
+                if board[new_loc] == val + 1:
+                    open_list.append(new_loc)    
+    
+    return rating
 
 
 
@@ -43,7 +122,8 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
+puzzles = [['test_case.txt',    [1, None]],
+           ['test_case_2.txt',  [36, 81]],
            ['puzzle_input.txt', []]]
 
 for problem in puzzles:
