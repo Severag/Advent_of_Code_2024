@@ -1,12 +1,12 @@
-import itertools, re
+import heapq
 import numpy as np
 
 
 def read_file(filename):
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        data = [list(line.strip()) for line in f]
     
-    return data
+    return np.array(data)
 
 
 
@@ -17,14 +17,50 @@ def solve(data, do_1=True, do_2=True):
     return p1, p2
 
 
-
-def part1(data):
-    return
+deltas = [[-1, 0],
+          [ 0, 1],
+          [ 1, 0],
+          [ 0,-1]]
+def part1(data, is_part2=False):
+    start = tuple(np.squeeze(np.where(data == 'S')))
+    end = tuple(np.squeeze(np.where(data == 'E')))
+    
+    open_list = [(0, start, 1, [start])]  # (points, location, direction [NESW=0123], path)
+    closed_set = set()
+    
+    best_paths = set()
+    best_score = np.inf
+    
+    while open_list:
+        score, loc, direc, path = heapq.heappop(open_list)
+        
+        if score > best_score:  # out of contention for best score
+            continue
+        elif loc == end:  # end condition
+            if is_part2:
+                best_score = score
+                best_paths |= set(path)
+            else:
+                return score
+        closed_set.add((loc, direc))
+        
+        # find neighbors
+        rev_direc = (direc + 2) % len(deltas)
+        for idx, [dr, dc] in enumerate(deltas):
+            cand = (loc[0] + dr, loc[1] + dc)
+            
+            # not returning to <loc> and not a wall and new location
+            if idx != rev_direc and data[cand] != '#' and (cand, idx) not in closed_set:
+                cost = 1 if idx == direc else 1001  # moving or moving + turning cost
+                
+                heapq.heappush(open_list, (score + cost, cand, idx, path + [cand]))
+    
+    return len(best_paths)
 
 
 
 def part2(data):
-    return
+    return part1(data, True)
 
 
 
@@ -43,8 +79,9 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
-           ['puzzle_input.txt', []]]
+puzzles = [['test_case.txt',    [7036, 45]],
+           ['test_case_2.txt',  [11048, 64]],
+           ['puzzle_input.txt', []]]  # 72432 is too low
 
 for problem in puzzles:
     filename, answers = problem
