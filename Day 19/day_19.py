@@ -1,30 +1,58 @@
-import itertools, re
+import functools, re
 import numpy as np
+from collections import defaultdict
 
 
 def read_file(filename):
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        towels = next(f).strip().split(', ')
+        designs = [line.strip() for line in f if line != '\n']
     
-    return data
+    return sorted(towels, key=len, reverse=True), designs
 
 
 
 def solve(data, do_1=True, do_2=True):
-    p1 = part1(data) if do_1 else None
-    p2 = part2(data) if do_2 else None
+    p1, keeps = part1(data) if do_1 else [None, None]
+    p2 = part2(data, keeps) if do_2 else None
     
     return p1, p2
 
 
 
 def part1(data):
-    return
+    towels, designs = data
+    regex = rf"(^(?:{'|'.join(towels)})+$)"
+    
+    keeps = []
+    for stripes in designs:
+        if re.match(regex, stripes) is not None:
+            keeps.append(stripes)
+    
+    return len(keeps), keeps
 
 
 
-def part2(data):
-    return
+def part2(data, keeps):
+    towels, designs = data
+    
+    total = 0
+    for stripes in keeps:
+        matches = [1] + [0] * len(stripes)
+        
+        for idx in range(len(stripes)):
+            for towel in towels:
+                # if <stripes>[idx] starts with <towel>
+                # i.e. if this towel can cover the colors we need here
+                if stripes.startswith(towel, idx):
+                    # then the towel coming after it will have as many 
+                    # possible combinations as this spot does
+                    width = len(towel)
+                    matches[idx + width] += matches[idx]
+        
+        total += matches[-1]
+    
+    return total
 
 
 
@@ -43,7 +71,7 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
+puzzles = [['test_case.txt',    [6, 16]],
            ['puzzle_input.txt', []]]
 
 for problem in puzzles:
