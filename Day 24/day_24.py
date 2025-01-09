@@ -26,8 +26,8 @@ def read_file(filename):
 
 
 def solve(data, do_1=True, do_2=True):
-    p1, wire_states = part1(data) if do_1 else (None, None)
-    p2 = part2(data, wire_states) if do_2 else None
+    p1 = part1(data) if do_1 else None
+    p2 = part2(data) if do_2 else None
     
     return p1, p2
 
@@ -78,7 +78,7 @@ def part1(data):
     # determine the z-values
     z_num = get_num(wire_states, 'z')
     
-    return z_num, wire_states
+    return z_num
 
 
 
@@ -107,7 +107,7 @@ def sort_gates(gates):  # sotring is not strictly necessary, but was helpful to 
 
 
 
-def part2(data, wire_states):
+def part2(data):
     gates, mid_gate_inputs, OR_gate_inputs = sort_gates(data[1])
     last = f"z{int(gates[-1][0][1:]) + 1}"
     
