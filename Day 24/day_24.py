@@ -82,7 +82,7 @@ def part1(data):
 
 
 
-def sort_gates(gates):  # sotring is not strictly necessary, but was helpful to grasp the problem
+def sort_gates(gates):  # sorting is not strictly necessary, but was helpful to grasp the problem
     new_gates = []
     # inputs to the pairs of AND and XOR gates that add in the previous column's remainder
     mid_gate_inputs = set()  
