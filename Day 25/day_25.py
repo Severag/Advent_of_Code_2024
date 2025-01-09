@@ -1,12 +1,33 @@
-import itertools, re
+import itertools
 import numpy as np
 
 
 def read_file(filename):
+    locks = []
+    keys = []
     with open( filename, 'r') as f:
-        data = [int(line.strip()) for line in f]
+        shape = []
+        line = 'start'
+        
+        while line:
+            line = next(f, '')  # default value is '', which trips the <while> condition
+            
+            if len(shape) == 0:  # new shape
+                is_key = '#' not in line
+                # first line is either empty (key) or ignored (lock)
+                shape = [0 for char in line.strip()]
+            elif len(line.strip()) < 1:  # end of shape
+                if is_key:  # remove last solid row from key count
+                    shape = [val - 1 for val in shape]
+                    keys.append(shape)
+                else:
+                    locks.append(shape)
+                shape = []
+                is_key = False
+            else:
+                shape = [val + (1 if char == '#' else 0) for val, char in zip(shape, line.strip())]
     
-    return data
+    return locks, keys
 
 
 
@@ -19,7 +40,17 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    all_locks, all_keys = data
+    good_fits = 0
+    
+    for lock, key in itertools.product(all_locks, all_keys):
+        for val1, val2 in zip(lock, key):
+            if val1 + val2 > 5:
+                break
+        else:  # no breaks, ergo all fit
+            good_fits += 1
+    
+    return good_fits
 
 
 
@@ -43,7 +74,7 @@ def check(myanswer, answer):
 
 
 
-puzzles = [['test_case.txt',    [None, None]],
+puzzles = [['test_case.txt',    [3, None]],
            ['puzzle_input.txt', []]]
 
 for problem in puzzles:
