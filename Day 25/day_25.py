@@ -1,5 +1,6 @@
 import itertools
 import numpy as np
+from operator import add
 
 
 def read_file(filename):
@@ -49,6 +50,15 @@ def part1(data):
                 break
         else:  # no breaks, ergo all fit
             good_fits += 1
+    
+    return good_fits
+
+
+
+def part1b(data):  # more functional(?) style, inspired by #raistlin7447
+    test_func = lambda lock, key: 1 if max(map(add, lock, key)) <= 5 else 0
+    
+    good_fits = sum([test_func(*lockkey) for lockkey in itertools.product(*data)])
     
     return good_fits
 
